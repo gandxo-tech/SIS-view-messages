@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>SIS-Voir les messages</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f6fbfd;
+      color: #0072b5;
+      padding: 0;
+      margin: 0;
+      .container {
+      margin-top: 10px;
+      background: #fff;
+      padding: 30px;
+      border-radius: 96px;
+  
+      width: 90%;
+      max-width: 440px;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      flex-direction: column;
+      height: 10,8vh;
+      box-shadow:0 8px 2px #2a5ea4;
+    }
+    input[type="text"] {
+      width: 80%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #1cc7e4;
+      margin-bottom: 10px;
+      font-size: 17px;
+      text-align: center;
+    justify-content: center;
+      
+    }
+    button {
+      background: #1cc7e4;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-bottom: 18px;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    button:hover { background: #008bb7;}
+    .msg-list { margin-top: 22px; }
+    .msg-item {
+      background: #e5f9fc;
+      margin-bottom: 18px;
+      padding: 18px 18px 12px 18px;
+      border-radius: 14px;
+      box-shadow: 0 1px 6px #1cc7e422;
+      color: #004d99;
+      position: relative;
+      border-left: 5px solid #1cc7e4;
+      transition: box-shadow 0.2s;
+    }
+    .msg-item:hover {
+      box-shadow: 0 4px 20px #1cc7e466;
+    }
+    .msg-date {
+      color: #1296b5;
+      font-size: 13px;
+      margin-top: 10px;
+      text-align: right;
+    }
+    .no-msg {
+      color: #d61616;
+      margin-top: 30px;
+      text-align: center;
+    }
+    .download-msg-btn {
+      margin-top: 12px;
+      background: #00bfff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      padding: 6px 12px;
+      cursor: pointer;
+      float: right;
+    }
+    .download-msg-btn:hover {
+      background: #0099cc;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>📬 Mes messages reçus</h2>
+    <input type="text" id="pseudo" placeholder="Ton pseudo exact">
+    <button id="voirBtn">Voir mes messages</button>
+    <div class="msg-list" id="msgList"></div>
+  </div>
+
+  <!-- html2canvas pour capture image -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBqk3L_qkolD41H3yvHEzz4O-Sr15I-Tko",
+      authDomain: "gandxoanonymous.firebaseapp.com",
+      projectId: "gandxoanonymous",
+      storageBucket: "gandxoanonymous.appspot.com",
+      messagingSenderId: "836606625364",
+      appId: "1:836606625364:web:7150571998131c41c0cfc1",
+      measurementId: "G-97TCHJ33KW"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    document.getElementById('voirBtn').onclick = async () => {
+      const pseudo = document.getElementById('pseudo').value.trim();
+      const msgList = document.getElementById('msgList');
+      msgList.innerHTML = "";
+
+      if (!pseudo) {
+        alert("Entre ton pseudo !");
+        return;
+      }
+
+      try {
+        const q = query(
+          collection(db, "messages"),
+          where("to", "==", pseudo),
+          orderBy("createdAt", "desc")
+        );
+        const snap = await getDocs(q);
+
+        if (snap.empty) {
+          msgList.innerHTML = `<div class="no-msg">Aucun message reçu pour ce pseudo...</div>`;
+        } else {
+          snap.forEach(doc => {
+            const d = doc.data();
+            let dateTxt = "";
+            if (d.createdAt && d.createdAt.toDate) {
+              dateTxt = d.createdAt.toDate().toLocaleString();
+            }
+            const divId = `msg-${doc.id}`;
+            msgList.innerHTML += `
+              <div class="msg-item" id="${divId}">
+                <div>${d.message}</div>
+                <div class="msg-date">${dateTxt}</div>
+                <button class="download-msg-btn" data-msgid="${divId}">Télécharger ce message (image)</button>
+              </div>
+            `;
+          });
+
+          // Ajout du handler pour chaque bouton de téléchargement
+          setTimeout(() => {
+            document.querySelectorAll('.download-msg-btn').forEach(btn => {
+              btn.onclick = async function() {
+                const msgDiv = document.getElementById(btn.dataset.msgid);
+                html2canvas(msgDiv).then(canvas => {
+                  const link = document.createElement('a');
+                  link.href = canvas.toDataURL("image/png");
+                  link.download = "messageSIS.png";
+                  link.click();
+                });
+              }
+            });
+          }, 100);
+        }
+      } catch (e) {
+        msgList.innerHTML = `<div class="no-msg">Erreur : ${e.message}</div>`;
+      }
+    };
+  </script>
+</body>
+  </html>
