@@ -117,7 +117,23 @@
     <button id="voirBtn">Voir mes messages</button>
     <div class="msg-list" id="msgList"></div>
   </div>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-97TCHJ33KW"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
 
+  gtag('js', new Date());
+  gtag('config', 'G-97TCHJ33KW', {
+    page_path: window.location.pathname + window.location.search,
+    page_location: window.location.href
+  });
+
+  // Identifier ce site dans GA
+  gtag('event', 'site_loaded', {
+    site_name: 'sis-view-messages'
+  });
+</script>
   <!-- html2canvas pour capture image -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
