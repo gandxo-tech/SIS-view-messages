@@ -211,5 +211,31 @@
       }
     };
   </script>
+<script>
+// Désactive le clic droit
+document.addEventListener('contextmenu', function(e) {
+  e.preventDefault();
+  alert("Fonction désactivée 🚫");
+});
+
+// Désactive F12, Ctrl+U, Ctrl+Shift+I/J/C, Ctrl+S…
+document.addEventListener('keydown', function(e) {
+  // F12
+  if (e.key === "F12") {
+    e.preventDefault();
+    alert("Action interdite 🚫");
+  }
+  // Ctrl+U, Ctrl+S
+  if (e.ctrlKey && (e.key.toLowerCase() === 'u' || e.key.toLowerCase() === 's')) {
+    e.preventDefault();
+    alert("Action interdite 🚫");
+  }
+  // Ctrl+Shift+I/J/C
+  if (e.ctrlKey && e.shiftKey && ['i', 'j', 'c'].includes(e.key.toLowerCase())) {
+    e.preventDefault();
+    alert("Action interdite 🚫");
+  }
+});
+</script>
 </body>
 </html>
